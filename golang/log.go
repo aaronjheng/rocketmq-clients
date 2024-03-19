@@ -18,6 +18,7 @@
 package golang
 
 import (
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -48,13 +49,13 @@ func ResetLogger() {
 
 func InitLogger() {
 	writeSyncer := getLogWriter()
-	isStdOut := utils.GetenvWithDef(ENABLE_CONSOLE_APPENDER, "false")
+	isStdOut := utils.GetenvWithDef(ENABLE_CONSOLE_APPENDER, "true")
 	if isStdOut == "true" {
-		writeSyncer = os.Stdout
+		writeSyncer = zapcore.AddSync(io.Discard)
 	}
 	encoder := getEncoder()
 
-	var atomicLevel = zap.NewAtomicLevel()
+	atomicLevel := zap.NewAtomicLevel()
 	switch strings.ToLower(os.Getenv(CLIENT_LOG_LEVEL)) {
 	case "debug":
 		atomicLevel.SetLevel(zap.DebugLevel)
